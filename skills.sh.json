@@ -1,21 +1,30 @@
 {
   "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
-  "groups": [
+  "notGrouped": "bottom",
+  "groupings": [
     {
-      "name": "Design & build",
+      "title": "Design & build",
       "description": "Shape a tool surface agents can actually use, then implement it on the official SDKs.",
-      "skills": ["mcp-server-design", "mcp-server-implementation"]
+      "skills": [
+        "mcp-server-design",
+        "mcp-server-implementation"
+      ]
     },
     {
-      "name": "Secure",
+      "title": "Secure",
       "description": "Spec-correct OAuth and defenses against the attacks MCP servers actually face.",
-      "skills": ["mcp-server-auth", "mcp-server-security"]
+      "skills": [
+        "mcp-server-auth",
+        "mcp-server-security"
+      ]
     },
     {
-      "name": "Ship",
+      "title": "Ship",
       "description": "Prove the server works with real agent evals, then run and distribute it in production.",
-      "skills": ["mcp-server-testing", "mcp-server-deployment"]
+      "skills": [
+        "mcp-server-testing",
+        "mcp-server-deployment"
+      ]
     }
-  ],
-  "notGrouped": "bottom"
+  ]
 }
