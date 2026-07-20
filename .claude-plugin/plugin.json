@@ -1,0 +1,11 @@
+{
+  "name": "mcp-server-skills",
+  "description": "Agent Skills for designing and implementing Model Context Protocol (MCP) servers - server architecture, tools, resources, prompts, transports, authorization, testing, and deployment.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Paldom",
+    "url": "https://github.com/Paldom"
+  },
+  "homepage": "https://github.com/Paldom/mcp-server-skills",
+  "license": "MIT"
+}

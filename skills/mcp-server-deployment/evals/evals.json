@@ -1,0 +1,67 @@
+{
+  "skill": "mcp-server-deployment",
+  "cases": [
+    { "type": "should_trigger", "prompt": "deploy our MCP server to production" },
+    { "type": "should_trigger", "prompt": "how do I scale a streamable http mcp server horizontally" },
+    { "type": "should_trigger", "prompt": "publish our server to the MCP registry" },
+    { "type": "should_trigger", "prompt": "package my mcp server as an MCPB bundle for non-technical users" },
+    { "type": "should_trigger", "prompt": "set up observability for our mcp server" },
+    { "type": "should_trigger", "prompt": "our mcp server keeps session state in memory and breaks behind the load balancer" },
+    { "type": "should_trigger", "prompt": "whats the best way to distribute an mcp server - npm, docker, or remote?" },
+    { "type": "should_trigger", "prompt": "add health checks and a canary rollout for the mcp server" },
+    { "type": "should_trigger", "prompt": "version our mcp server without breaking existing clients" },
+    { "type": "should_trigger", "prompt": "host an mcp server on cloudflare / serverless - any gotchas?" },
+    { "type": "should_not_trigger", "prompt": "build an mcp server in typescript" },
+    { "type": "should_not_trigger", "prompt": "add oauth to our remote mcp server" },
+    { "type": "should_not_trigger", "prompt": "harden the mcp server against tool poisoning" },
+    { "type": "should_not_trigger", "prompt": "write agent evals for the mcp server" },
+    { "type": "should_not_trigger", "prompt": "what tools should the mcp server expose" },
+    { "type": "should_not_trigger", "prompt": "deploy our React app to Vercel" },
+    { "type": "should_not_trigger", "prompt": "set up kubernetes autoscaling for our web API" },
+    { "type": "should_not_trigger", "prompt": "my mcp server crashes on startup, fix it" },
+    { "type": "should_not_trigger", "prompt": "publish our python package to PyPI" },
+    { "type": "should_not_trigger", "prompt": "migrate my mcp server from SSE to streamable http" },
+    {
+      "type": "quality",
+      "prompt": "Take our working Streamable HTTP MCP server to production for ~200 internal users.",
+      "expected_behavior": [
+        "makes app nodes stateless: session/tool state externalized (e.g. Redis/Postgres keyed by session id bound to user), so any node serves any request behind a standard load balancer",
+        "adds liveness/readiness probes where readiness reflects real dependency health, not just process-up",
+        "wires observability: one structured log line and one trace span per tool call, low-cardinality metrics (per-tool latency/error/count), identities in trace attributes not metric labels",
+        "ships via progressive rollout (canary or blue/green) verifying initialize, auth discovery, and a canonical tool call before full traffic",
+        "notes serverless execution-time ceilings and long-lived stream implications if a serverless platform is proposed",
+        "defers OAuth wiring to the auth skill and hardening to the security skill rather than re-deriving them"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "We want the server discoverable: publish it to the official MCP Registry and make local install easy.",
+      "expected_behavior": [
+        "creates a server.json against the current schema and publishes with the mcp-publisher CLI (init, login, publish), using a verified namespace (io.github.* via GitHub auth or DNS-verified custom domain)",
+        "ensures the underlying package (npm/PyPI) carries the matching registry name marker (e.g. mcpName in package.json)",
+        "notes the registry is in preview (possible breaking changes) and does not security-review listings",
+        "offers an MCPB bundle for non-technical users with secrets marked sensitive so they land in the OS keychain, and pinned versions in any client config examples"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "How should we version our MCP server so client setups don't break?",
+      "expected_behavior": [
+        "separates server/package versioning (semver, breaking change = major) from protocol revision support (date-based, negotiated per session)",
+        "keeps tool names and schemas stable: additive fields over renames, deprecation window with notices in tool descriptions before removal",
+        "maintains a compatibility note/matrix of supported protocol revisions and tested clients",
+        "recommends schema-snapshot diffing in CI to catch accidental breaking changes"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Our MCP server needs to run both as a local stdio install and as a hosted remote service. Structure the delivery.",
+      "expected_behavior": [
+        "shares one core tool/business layer with thin per-transport entrypoints (stdio binary vs HTTP service)",
+        "distributes local via npm/PyPI (pinned install command) and/or MCPB, remote via the hosted Streamable HTTP endpoint",
+        "keeps configuration per-mode: env credentials locally, OAuth remotely (pointing to the auth skill)",
+        "lists both in the registry entry (packages plus remotes) where appropriate"
+      ]
+    }
+  ]
+}

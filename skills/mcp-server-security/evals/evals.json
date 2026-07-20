@@ -1,0 +1,69 @@
+{
+  "skill": "mcp-server-security",
+  "cases": [
+    { "type": "should_trigger", "prompt": "harden my MCP server before we expose it to customers" },
+    { "type": "should_trigger", "prompt": "is my mcp server vulnerable to tool poisoning?" },
+    { "type": "should_trigger", "prompt": "security review of our MCP server please" },
+    { "type": "should_trigger", "prompt": "how do I stop prompt injection coming back through my mcp server's tool results" },
+    { "type": "should_trigger", "prompt": "what's a rug pull attack in MCP and how do we defend against it" },
+    { "type": "should_trigger", "prompt": "threat model our new mcp server" },
+    { "type": "should_trigger", "prompt": "our mcp server has a delete_project tool - what guardrails does it need?" },
+    { "type": "should_trigger", "prompt": "sandbox an untrusted mcp server we want to run locally" },
+    { "type": "should_trigger", "prompt": "audit logging requirements for mcp tool calls?" },
+    { "type": "should_trigger", "prompt": "my mcp server fetches urls - how do i prevent SSRF" },
+    { "type": "should_not_trigger", "prompt": "add OAuth 2.1 token validation to my MCP server" },
+    { "type": "should_not_trigger", "prompt": "implement the protected resource metadata endpoint" },
+    { "type": "should_not_trigger", "prompt": "build an mcp server in typescript" },
+    { "type": "should_not_trigger", "prompt": "what tools should our mcp server expose" },
+    { "type": "should_not_trigger", "prompt": "write agent evals for our mcp server" },
+    { "type": "should_not_trigger", "prompt": "deploy the mcp server to production on k8s" },
+    { "type": "should_not_trigger", "prompt": "run a security scan on our React frontend" },
+    { "type": "should_not_trigger", "prompt": "harden our postgres database configuration" },
+    { "type": "should_not_trigger", "prompt": "my mcp server crashes when I print to stdout" },
+    { "type": "should_not_trigger", "prompt": "pentest our corporate VPN" },
+    {
+      "type": "quality",
+      "prompt": "We're about to expose our internal MCP server (search + create + delete tools over our project database) to the whole engineering org. Harden it.",
+      "expected_behavior": [
+        "walks the MCP-specific threat taxonomy (tool poisoning, rug pulls, prompt injection via tool results, confused deputy, session hijacking, SSRF, command injection) rather than only generic appsec",
+        "enforces guardrails in code, not prompts: destructive tools gated by confirmation, scope checks and hard business-rule validation in handlers",
+        "adds idempotency keys to mutating tools because agents retry by design",
+        "requires per-call audit logging (identity, tool, sanitized args, outcome) to a store separate from the app database, with no secrets in logs",
+        "covers transport/session floors: Origin validation, secure random session IDs bound to user identity, sessions never used for authentication",
+        "recommends sandboxing (container/least-privilege FS+network), per-tool rate limits and kill switches, and pinned dependencies",
+        "treats tool output as untrusted model input: sanitize/delimit external content, never echo unfiltered third-party text",
+        "points to auth specifics (audience validation, no token passthrough) as the mcp-server-auth skill's domain rather than re-deriving them"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Explain how a malicious MCP server could attack the agents that connect to it, and what we should check before running a third-party server.",
+      "expected_behavior": [
+        "describes tool poisoning (instructions hidden in descriptions/schema fields, including zero-width/encoded payloads) and rug pulls (benign description swapped after approval via list_changed)",
+        "describes prompt injection through tool results and the lethal-trifecta framing (private data + untrusted content + exfiltration channel)",
+        "prescribes vetting: pin server versions, hash/pin tool descriptions and alert on drift, review before install, prefer sandboxed execution, scan with description-scanning tooling in CI",
+        "notes annotations are unverified hints from the server and must not drive security decisions"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Our MCP tool fetch_url downloads a page and returns the text. What could go wrong?",
+      "expected_behavior": [
+        "flags SSRF: blocks private/link-local ranges including cloud metadata endpoints, enforces scheme allowlists, uses an egress proxy or resolver checks",
+        "flags prompt injection in fetched content and requires delimiting/sanitizing before returning it to the model",
+        "flags unbounded response size and prescribes caps/truncation",
+        "considers rate limiting and cost controls for repeated large fetches"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Write the security checklist we should run in CI for our MCP server repo.",
+      "expected_behavior": [
+        "includes deterministic gates: dependency pinning/lockfiles, secret scanning, tool-description drift detection (hash or scanner), stdio-hygiene or transport checks as applicable",
+        "includes behavior gates: destructive tools have confirmation + idempotency, error paths leak no internals, rate limits configured",
+        "includes an eval-style regression for guardrails (a prohibited action is actually refused)",
+        "keeps the checklist runnable/scriptable rather than aspirational prose"
+      ]
+    }
+  ]
+}

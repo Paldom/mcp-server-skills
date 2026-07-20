@@ -1,0 +1,67 @@
+{
+  "skill": "mcp-server-design",
+  "cases": [
+    { "type": "should_trigger", "prompt": "design an MCP server for our CRM - what tools should it expose?" },
+    { "type": "should_trigger", "prompt": "how many tools is too many for an mcp server" },
+    { "type": "should_trigger", "prompt": "review the tool descriptions of my MCP server, the agent keeps picking the wrong tool" },
+    { "type": "should_trigger", "prompt": "should this be a tool, a resource, or a prompt in my MCP server?" },
+    { "type": "should_trigger", "prompt": "plan the tool surface for an mcp server that wraps the GitHub API" },
+    { "type": "should_trigger", "prompt": "my agent gets confused by our MCP server's 40 tools, help me consolidate them" },
+    { "type": "should_trigger", "prompt": "whats a good naming convention for mcp tools" },
+    { "type": "should_trigger", "prompt": "we want to turn our REST API into MCP - which endpoints become tools?" },
+    { "type": "should_trigger", "prompt": "is it worth building an MCP server for this internal service, or should we stick with plain function calling?" },
+    { "type": "should_trigger", "prompt": "write a good description and input schema for the search_orders tool on my MCP server" },
+    { "type": "should_not_trigger", "prompt": "implement an MCP server in Python for our CRM" },
+    { "type": "should_not_trigger", "prompt": "add OAuth to my MCP server" },
+    { "type": "should_not_trigger", "prompt": "my MCP server crashes whenever I print debug logs" },
+    { "type": "should_not_trigger", "prompt": "is my MCP server vulnerable to tool poisoning?" },
+    { "type": "should_not_trigger", "prompt": "write an eval suite for my MCP server" },
+    { "type": "should_not_trigger", "prompt": "publish my MCP server to the MCP registry" },
+    { "type": "should_not_trigger", "prompt": "design a REST API for our billing service" },
+    { "type": "should_not_trigger", "prompt": "which MCP servers should I install for Claude Code?" },
+    { "type": "should_not_trigger", "prompt": "design the database schema for our orders service" },
+    { "type": "should_not_trigger", "prompt": "hook an MCP client into my desktop app" },
+    {
+      "type": "quality",
+      "prompt": "Design an MCP server for our internal ticketing system: agents should be able to create, search, comment on and close tickets, and look up the on-call schedule.",
+      "expected_behavior": [
+        "starts by checking the server is worth building (multiple AI clients / reused workflows), not by listing endpoints",
+        "proposes a small set (roughly 5-8) of outcome-oriented tools that consolidate workflows, not 1:1 CRUD wrappers",
+        "assigns primitives by control model: read-only reference data (e.g. on-call schedule) as a resource or read tool with justification, repeatable operator workflows as prompts",
+        "names tools in snake_case with a service prefix (e.g. tickets_search, tickets_close) per current spec naming guidance",
+        "gives each tool a description with what-it-does, when-to-use / when-not, parameter formats and return shape, plus a flat typed input schema using enums and defaults",
+        "designs list-returning tools with pagination (limit + cursor/has_more) and a concise/detailed response_format parameter",
+        "writes example error messages as recovery instructions for the agent, and marks destructive tools with honest annotations plus a confirmation gate"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "We have an OpenAPI spec with 120 endpoints for our commerce platform. Turn it into an MCP server.",
+      "expected_behavior": [
+        "refuses a 1:1 endpoint-to-tool conversion and explains the agent-accuracy and context cost of tool bloat",
+        "derives tools from user workflows/outcomes instead, keeping the surface to roughly 15 tools or fewer",
+        "recommends splitting into multiple domain servers (or read vs write surfaces) when the domain genuinely needs more",
+        "flags that raw auto-generated wrappers are a documented anti-pattern in MCP practice"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Our agent only ever needs to look up one config value from our settings service. Design the MCP server for that.",
+      "expected_behavior": [
+        "questions whether an MCP server is warranted at all for a single static lookup",
+        "suggests a simpler alternative (direct function/tool integration, or a resource in an existing server)",
+        "if a server is still requested, keeps it to a single well-described read-only tool or resource"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Improve this MCP tool description: \"Gets commits\"",
+      "expected_behavior": [
+        "rewrites the description stating what it retrieves, required/optional parameters with formats, the return shape, and sort order or limits",
+        "adds when-to-use and when-not-to-use guidance aimed at the calling model",
+        "recommends schema-level fixes too (typed flat parameters, enums, defaults) rather than stuffing constraints into prose",
+        "explains that descriptions are routing prompts for the agent, not human API docs"
+      ]
+    }
+  ]
+}

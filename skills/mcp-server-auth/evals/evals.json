@@ -1,0 +1,66 @@
+{
+  "skill": "mcp-server-auth",
+  "cases": [
+    { "type": "should_trigger", "prompt": "add OAuth to my MCP server" },
+    { "type": "should_trigger", "prompt": "how should my remote mcp server validate access tokens?" },
+    { "type": "should_trigger", "prompt": "implement the protected resource metadata endpoint for my MCP server" },
+    { "type": "should_trigger", "prompt": "my mcp server needs auth - api key or oauth 2.1?" },
+    { "type": "should_trigger", "prompt": "set up PKCE and token validation for our streamable http MCP server" },
+    { "type": "should_trigger", "prompt": "how do I do step-up authorization / scopes on an MCP server" },
+    { "type": "should_trigger", "prompt": "wire our MCP server to Okta as the authorization server" },
+    { "type": "should_trigger", "prompt": "clients get a 401 with no WWW-Authenticate from my mcp server, whats missing" },
+    { "type": "should_trigger", "prompt": "can my mcp server just forward the user's token to the downstream API?" },
+    { "type": "should_trigger", "prompt": "should we support dynamic client registration on our mcp server" },
+    { "type": "should_trigger", "prompt": "whats the right way to handle credentials for a local stdio mcp server" },
+    { "type": "should_not_trigger", "prompt": "harden my mcp server against tool poisoning and rug pulls" },
+    { "type": "should_not_trigger", "prompt": "build an mcp server in python for our CRM" },
+    { "type": "should_not_trigger", "prompt": "what tools should my mcp server expose" },
+    { "type": "should_not_trigger", "prompt": "add oauth login to my Next.js web app" },
+    { "type": "should_not_trigger", "prompt": "deploy my mcp server behind an api gateway on AWS" },
+    { "type": "should_not_trigger", "prompt": "validate the Origin header on my mcp server" },
+    { "type": "should_not_trigger", "prompt": "write trigger evals for my mcp server's tools" },
+    { "type": "should_not_trigger", "prompt": "rotate the secrets in our kubernetes cluster" },
+    { "type": "should_not_trigger", "prompt": "which oauth flow should our mobile app use for login" },
+    {
+      "type": "quality",
+      "prompt": "Add OAuth 2.1 authorization to our remote Streamable HTTP MCP server. We already run Auth0 for the product.",
+      "expected_behavior": [
+        "frames the MCP server as an OAuth 2.1 resource server that validates tokens and never issues them, reusing Auth0 as the authorization server",
+        "implements RFC 9728 protected resource metadata (well-known endpoint and/or WWW-Authenticate header on 401) advertising the authorization server",
+        "validates token audience per RFC 8707: rejects validly-signed tokens issued for other resources with 401, requires Authorization: Bearer on every request, and refuses tokens in query strings",
+        "explicitly forbids token passthrough to downstream APIs and names the confused-deputy risk",
+        "covers PKCE S256 (clients must refuse authorization servers whose metadata lacks code challenge support), exact redirect URI matching, and scope challenges (403 insufficient_scope) for step-up",
+        "recommends local JWT validation with cached JWKS rather than a network call per request",
+        "notes that authorization is optional in the spec but strongly recommended for any internet-exposed server, and that stdio servers use environment credentials instead"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Our MCP server takes the Google OAuth token the client sends us and uses it to call the Calendar API. Is that OK?",
+      "expected_behavior": [
+        "identifies this as token passthrough, explicitly forbidden by the MCP authorization spec",
+        "explains the failure modes: audience/validation bypass, broken audit trails, confused deputy",
+        "prescribes the correct pattern: the server accepts only tokens issued for itself, and obtains downstream access via its own credentials or a token-exchange flow",
+        "if the server proxies a third-party authorization server, requires per-client consent, exact redirect URI matching, and state validation"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Do we need OAuth for the stdio MCP server our team runs locally in Claude Code?",
+      "expected_behavior": [
+        "answers no: the authorization spec targets HTTP transports; stdio servers should read credentials from the environment",
+        "advises scoping the underlying API credential minimally and keeping it out of code and client config args",
+        "does not bolt an OAuth flow onto a local subprocess"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "A partner wants to register their MCP client with our server dynamically. Support RFC 7591?",
+      "expected_behavior": [
+        "recommends Client ID Metadata Documents (HTTPS client_id URLs) as the current preferred registration mechanism, with RFC 7591 dynamic registration only as a back-compat fallback",
+        "notes dynamic client registration is deprecated in the upcoming spec revision",
+        "requires redirect URI allowlisting/exact matching and per-client consent to prevent open-registration account-takeover attacks"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "skill": "mcp-server-testing",
+  "cases": [
+    { "type": "should_trigger", "prompt": "test my MCP server" },
+    { "type": "should_trigger", "prompt": "how do I debug my mcp server with the inspector" },
+    { "type": "should_trigger", "prompt": "write evals for our mcp server's tools" },
+    { "type": "should_trigger", "prompt": "our agents pick the wrong MCP tool half the time - how do we measure and fix tool selection?" },
+    { "type": "should_trigger", "prompt": "set up CI regression tests for our mcp server's tool schemas and descriptions" },
+    { "type": "should_trigger", "prompt": "run the mcp conformance suite against my server" },
+    { "type": "should_trigger", "prompt": "load test our streamable http mcp server" },
+    { "type": "should_trigger", "prompt": "how do we know if our mcp server actually makes agents better at tasks?" },
+    { "type": "should_trigger", "prompt": "build an evaluation harness with realistic tasks for the new mcp server" },
+    { "type": "should_trigger", "prompt": "mcp inspector how to" },
+    { "type": "should_not_trigger", "prompt": "my mcp server crashes when I print to stdout" },
+    { "type": "should_not_trigger", "prompt": "harden our mcp server against prompt injection" },
+    { "type": "should_not_trigger", "prompt": "add oauth to the mcp server" },
+    { "type": "should_not_trigger", "prompt": "deploy the mcp server to production" },
+    { "type": "should_not_trigger", "prompt": "what tools should our mcp server expose" },
+    { "type": "should_not_trigger", "prompt": "write unit tests for our React components" },
+    { "type": "should_not_trigger", "prompt": "my mcp server works in Inspector but Claude Desktop says connection closed - fix it" },
+    { "type": "should_not_trigger", "prompt": "write pytest tests for this python module" },
+    { "type": "should_not_trigger", "prompt": "evaluate which LLM we should use for our chatbot" },
+    { "type": "should_not_trigger", "prompt": "run the security checklist for our mcp repo in CI" },
+    {
+      "type": "quality",
+      "prompt": "Create an evaluation suite for our MCP server that wraps the company wiki (search, read pages, list spaces).",
+      "expected_behavior": [
+        "creates ~10 independent, read-only questions grounded in real content, each with a single stable verifiable answer and a specified answer format",
+        "makes questions complex (multi-hop, paraphrased so keyword search alone cannot shortcut them) and diverse in answer modality",
+        "verifies every answer by solving it with the tools before accepting it into the suite",
+        "runs the suite through an agent harness against the live server and reports accuracy, tool-call counts, latency, and token usage",
+        "reads failing transcripts to locate confusion and feeds fixes back into tool descriptions/schemas, keeping a held-out subset to detect overfitting"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Our coding agent keeps calling jira_search when it should call jira_get_issue. Diagnose and fix the selection problem.",
+      "expected_behavior": [
+        "treats tool selection as a measurable classification problem with an offline eval set of prompt-to-expected-tool pairs",
+        "checks the two descriptions for overlap/ambiguity and rewrites them with disjoint when-to-use guidance rather than only prompt-tuning the agent",
+        "re-runs the selection eval after the description change and compares accuracy",
+        "recommends description-overlap detection in CI so regressions are caught on future edits"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Before we tag v1.0 of our MCP server, verify it is protocol-correct.",
+      "expected_behavior": [
+        "exercises every tool/resource/prompt in MCP Inspector including at least one error path per tool and empty-result behavior",
+        "runs the official conformance suite against the server and triages failures",
+        "tests on the transports actually shipped (stdio and/or Streamable HTTP), not just one",
+        "gates the release on build + conformance + eval accuracy, not on unit tests alone"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Load test our remote MCP server before launch.",
+      "expected_behavior": [
+        "drives realistic JSON-RPC tools/call POSTs against the MCP endpoint with the required Accept headers, not just GET /health",
+        "sets explicit thresholds (error rate, p95 latency) that fail the run",
+        "uses a representative tool mix including at least one expensive tool, and watches session/auth behavior under concurrency where applicable",
+        "reports results with the limiting resource identified rather than a bare pass"
+      ]
+    }
+  ]
+}

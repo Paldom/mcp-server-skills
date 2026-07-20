@@ -1,0 +1,76 @@
+{
+  "skill": "mcp-server-implementation",
+  "cases": [
+    { "type": "should_trigger", "prompt": "build an MCP server in Python that wraps our internal ticketing API" },
+    { "type": "should_trigger", "prompt": "create an mcp server in typescript that can run read-only postgres queries" },
+    { "type": "should_trigger", "prompt": "my MCP server crashes as soon as I add print statements for debugging" },
+    { "type": "should_trigger", "prompt": "how do I return structured output from an MCP tool with the python sdk?" },
+    { "type": "should_trigger", "prompt": "add progress reporting to a long-running tool in my MCP server" },
+    { "type": "should_trigger", "prompt": "implement streamable http transport for my mcp server" },
+    { "type": "should_trigger", "prompt": "convert my old SSE-based MCP server to streamable HTTP" },
+    { "type": "should_trigger", "prompt": "why does my mcp server disconnect right after initialize" },
+    { "type": "should_trigger", "prompt": "scaffold an mcp server exposing two tools over stdio pls" },
+    { "type": "should_trigger", "prompt": "should a failed MCP tool call raise an exception or return isError?" },
+    { "type": "should_not_trigger", "prompt": "what tools should my MCP server expose for our CRM?" },
+    { "type": "should_not_trigger", "prompt": "add OAuth 2.1 login to my remote MCP server" },
+    { "type": "should_not_trigger", "prompt": "harden my MCP server against prompt injection and tool poisoning" },
+    { "type": "should_not_trigger", "prompt": "write agent evals for my MCP server" },
+    { "type": "should_not_trigger", "prompt": "deploy my MCP server to Kubernetes with autoscaling" },
+    { "type": "should_not_trigger", "prompt": "publish my server to the MCP registry" },
+    { "type": "should_not_trigger", "prompt": "build a REST API server in Python with FastAPI" },
+    { "type": "should_not_trigger", "prompt": "write an MCP client that connects to several servers at once" },
+    { "type": "should_not_trigger", "prompt": "my Express server's logging middleware is broken" },
+    { "type": "should_not_trigger", "prompt": "review my mcp server's tool descriptions for clarity" },
+    {
+      "type": "quality",
+      "prompt": "Build a Python MCP server exposing tickets_search and tickets_create for our ticketing REST API. It will run locally in Claude Code.",
+      "expected_behavior": [
+        "uses the official python sdk (mcp package, production pin mcp>=1.27,<2) with the bundled FastMCP class and decorator registration, not the third-party fastmcp package",
+        "typed parameters with constraints/enums; docstring or description carrying when-to-use guidance; shared API-client and error-mapping helpers instead of per-tool copy-paste",
+        "runs over stdio by default and routes every log line to stderr, never stdout",
+        "returns execution failures as isError tool results with recovery-oriented messages, reserving protocol errors for unknown tools/malformed requests",
+        "reads the API base URL and credentials from environment variables validated at startup",
+        "verifies the server by launching it with MCP Inspector (or the mcp dev command) before handing off"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Write a TypeScript MCP server with one tool that fetches weather data, returning both text and structured JSON.",
+      "expected_behavior": [
+        "uses the current official SDK APIs (McpServer with registerTool and zod schemas), not deprecated server.tool()/setRequestHandler patterns unless a low-level server is explicitly requested",
+        "declares an outputSchema and returns structuredContent consistent with a serialized text content block for backward compatibility",
+        "wires StdioServerTransport (or Streamable HTTP if remote is stated) with logs to console.error only",
+        "pins the SDK to the current v1 major and notes the v2 beta split packages as a migration horizon, not the default"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "One of our MCP tools kicks off a data export that takes 2-5 minutes. Make it behave well.",
+      "expected_behavior": [
+        "sends progress notifications tied to the request's progressToken, rate-limited and stopping at completion",
+        "handles cancellation notifications and cleans up the aborted export",
+        "mentions the experimental tasks feature as the durable alternative, flagged as experimental/subject to relocation into an extension, rather than presenting it as stable",
+        "warns about client and infrastructure timeouts (e.g. ~30s serverless limits) as the reason long synchronous calls fail"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "My MCP server works fine when I run it in the terminal but Claude Desktop shows 'Connection closed'. Debug it.",
+      "expected_behavior": [
+        "identifies stdout pollution (print/console.log/banners from dependencies) as the leading cause under stdio and greps for it",
+        "checks the client config for non-absolute command paths and missing environment variables as the next causes",
+        "verifies the fix by running the server under MCP Inspector rather than declaring success from code reading"
+      ]
+    },
+    {
+      "type": "quality",
+      "prompt": "Migrate our remote MCP server off the old HTTP+SSE transport.",
+      "expected_behavior": [
+        "targets Streamable HTTP: one MCP endpoint accepting POST (and optional GET for the server push stream), replacing the two-endpoint SSE design deprecated since revision 2025-03-26",
+        "handles the MCP-Protocol-Version header and optional session id header per current spec, treating sessions as lookup keys rather than authentication",
+        "validates Origin and binds localhost for local deployments, returning 403 on invalid Origin",
+        "optionally serves both transports during a migration window and notes the 2026-07-28 revision's stateless direction as a reason not to couple new code to protocol sessions"
+      ]
+    }
+  ]
+}
