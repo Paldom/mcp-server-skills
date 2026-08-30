@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/icon.svg" alt="mcp-server-skills icon" width="128"/>
+</p>
+
 # Mcp Server Skills
 
 [![CI](https://github.com/Paldom/mcp-server-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/Paldom/mcp-server-skills/actions/workflows/ci.yml)
