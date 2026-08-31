@@ -1,6 +1,6 @@
 ---
 name: mcp-server-testing
-description: Tests and evaluates MCP servers - Inspector, the official conformance suite, agent evals with verifiable answers, transcript-driven description iteration, tool-selection accuracy, CI regression gates, load tests. Use when the user asks to test, evaluate, verify, or measure an MCP server or its tool selection. Not for fixing server code, security hardening, or generic unit testing.
+description: Tests and evaluates MCP servers - Inspector, the official conformance suite, an evaluation harness of realistic tasks with verifiable answers, transcript-driven iteration, tool-selection accuracy, CI regression gates. Use when the user asks to test, evaluate, measure, or build an eval harness for an MCP server or its tool selection. Not for fixing server code, hardening, or unit testing.
 ---
 
 # mcp-server-testing

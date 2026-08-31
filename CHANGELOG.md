@@ -7,6 +7,24 @@ versioning: [SemVer](https://semver.org) on the plugin manifest
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-31
+
+### Added
+- Adopted the current skillskit gate: executed trigger evals scoring every trigger
+  prompt against every skill description (rank-1 routing accuracy 82.0%), a security
+  scan over skill content and bundled scripts, ruff lint and format, README-shape
+  validation, pre-commit hooks and a write-time lint hook.
+
+### Changed
+- Skill descriptions sharpened where the eval gate showed a sibling outranking a
+  skill on its own trigger prompts, or a stated non-trigger matching better than any
+  trigger. Fixes changed the scope boundary, not just the wording.
+
+### Fixed
+- Findings the new lint gate surfaced in this repo's own scripts, fixed at the
+  source; where a rule was wrong for a line it is suppressed there with its reason.
+
+
 ### Added
 - `mcp-server-design`: designs an MCP server's tool/resource/prompt surface — outcome-oriented consolidation, tool budget, SEP-986 naming, descriptions-as-prompts, flat typed schemas, pagination contracts, agent-readable errors; ships a deterministic surface linter.
 - `mcp-server-implementation`: implements MCP servers on the official TS/Python SDKs — current registration APIs, both transports (stdio hygiene, Streamable HTTP wire contract), isError vs protocol errors, structured output, progress/cancellation; ships a stdio-hygiene checker and per-language reference implementations.

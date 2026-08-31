@@ -24,8 +24,13 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-UNSTABLE = re.compile(r"\b(current(ly)?|latest|today|right now|as of now|this (week|month|year)|how many .* are there)\b", re.I)
-FORMAT_HINT = re.compile(r"(answer format|format:|true or false|yes or no|YYYY|\bMM\b|\bDD\b)", re.I)
+UNSTABLE = re.compile(
+    r"\b(current(ly)?|latest|today|right now|as of now|this (week|month|year)|how many .* are there)\b",
+    re.I,
+)
+FORMAT_HINT = re.compile(
+    r"(answer format|format:|true or false|yes or no|YYYY|\bMM\b|\bDD\b)", re.I
+)
 
 
 def load_pairs(path: Path):
@@ -34,9 +39,11 @@ def load_pairs(path: Path):
         data = json.loads(text)
         items = data if isinstance(data, list) else data.get("qa_pairs") or data.get("cases") or []
         return [(str(i.get("question", "")), str(i.get("answer", ""))) for i in items]
-    root = ET.fromstring(text)
-    return [((p.findtext("question") or "").strip(), (p.findtext("answer") or "").strip())
-            for p in root.iter("qa_pair")]
+    root = ET.fromstring(text)  # noqa: S314 - parses a local file the caller supplies; defusedxml would add a runtime dependency a skill must not have
+    return [
+        ((p.findtext("question") or "").strip(), (p.findtext("answer") or "").strip())
+        for p in root.iter("qa_pair")
+    ]
 
 
 def main() -> int:
@@ -44,7 +51,8 @@ def main() -> int:
     min_n = 10
     if "--min" in args:
         i = args.index("--min")
-        min_n = int(args[i + 1]); del args[i:i + 2]
+        min_n = int(args[i + 1])
+        del args[i : i + 2]
     if len(args) != 1:
         print(__doc__.strip(), file=sys.stderr)
         return 2
@@ -72,23 +80,33 @@ def main() -> int:
             errors.append(f"{tag}: duplicate of qa#{seen_q[qn]}")
         seen_q.setdefault(qn, n)
         if an in seen_a:
-            errors.append(f"{tag}: duplicate answer of qa#{seen_a[an]} ({a!r}) - vary answer modalities")
+            errors.append(
+                f"{tag}: duplicate answer of qa#{seen_a[an]} ({a!r}) - vary answer modalities"
+            )
         seen_a.setdefault(an, n)
         if len(an) > 3 and an in qn:
             errors.append(f"{tag}: answer appears verbatim in the question")
         m = UNSTABLE.search(q)
         if m:
-            warnings.append(f"{tag}: unstable phrasing {m.group(0)!r} - pin a historical window instead")
+            warnings.append(
+                f"{tag}: unstable phrasing {m.group(0)!r} - pin a historical window instead"
+            )
         if not FORMAT_HINT.search(q):
-            warnings.append(f"{tag}: no declared answer format (add e.g. 'Answer format: YYYY-MM-DD')")
+            warnings.append(
+                f"{tag}: no declared answer format (add e.g. 'Answer format: YYYY-MM-DD')"
+            )
         if a.strip().startswith(("[", "{")) or ("," in a and len(a) > 40):
-            warnings.append(f"{tag}: answer looks like a list/structure - use one string-comparable value")
+            warnings.append(
+                f"{tag}: answer looks like a list/structure - use one string-comparable value"
+            )
 
     for w in warnings:
         print(f"WARN  {w}")
     for e in errors:
         print(f"ERROR {e}")
-    print(f"{'FAIL' if errors else 'OK'}: {len(errors)} error(s), {len(warnings)} warning(s), {len(pairs)} pair(s)")
+    print(
+        f"{'FAIL' if errors else 'OK'}: {len(errors)} error(s), {len(warnings)} warning(s), {len(pairs)} pair(s)"
+    )
     return 1 if errors else 0
 
 

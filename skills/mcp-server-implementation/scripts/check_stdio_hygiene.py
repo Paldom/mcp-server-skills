@@ -20,17 +20,27 @@ from pathlib import Path
 SKIP_DIRS = {"node_modules", ".venv", "venv", ".git", "dist", "build", "__pycache__", ".tox"}
 PATTERNS = {
     ".py": [
-        (re.compile(r"(?<![\w.])print\s*\((?![^)\n]*file\s*=\s*sys\.stderr)"), "print() without file=sys.stderr"),
+        (
+            re.compile(r"(?<![\w.])print\s*\((?![^)\n]*file\s*=\s*sys\.stderr)"),
+            "print() without file=sys.stderr",
+        ),
         (re.compile(r"sys\.stdout\.write"), "sys.stdout.write"),
-        (re.compile(r"logging\.basicConfig\((?![^)\n]*stream\s*=\s*sys\.stderr)[^)\n]*\)"),
-         "logging.basicConfig without stream=sys.stderr (root logger defaults to stderr, but an explicit stdout handler elsewhere will break framing - verify)"),
+        (
+            re.compile(r"logging\.basicConfig\((?![^)\n]*stream\s*=\s*sys\.stderr)[^)\n]*\)"),
+            "logging.basicConfig without stream=sys.stderr (root logger defaults to stderr, but an explicit stdout handler elsewhere will break framing - verify)",
+        ),
     ],
     ".js": [
-        (re.compile(r"console\.(log|info|debug|table)\s*\("), "console.log/info/debug (stdout) - use console.error"),
+        (
+            re.compile(r"console\.(log|info|debug|table)\s*\("),
+            "console.log/info/debug (stdout) - use console.error",
+        ),
         (re.compile(r"process\.stdout\.write"), "process.stdout.write"),
     ],
 }
-PATTERNS[".ts"] = PATTERNS[".mjs"] = PATTERNS[".cjs"] = PATTERNS[".jsx"] = PATTERNS[".tsx"] = PATTERNS[".js"]
+PATTERNS[".ts"] = PATTERNS[".mjs"] = PATTERNS[".cjs"] = PATTERNS[".jsx"] = PATTERNS[".tsx"] = (
+    PATTERNS[".js"]
+)
 
 
 def scan(root: Path) -> list[str]:

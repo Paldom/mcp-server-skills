@@ -38,15 +38,19 @@ def check_schema(tool: str, schema: dict) -> None:
         return
     props = schema.get("properties", {})
     for pname, p in props.items():
-        if not isinstance(p, dict) or "type" not in p and "enum" not in p:
+        if not isinstance(p, dict) or ("type" not in p and "enum" not in p):
             errors.append(f"{tool}.{pname}: property missing a type")
             continue
         if p.get("type") == "object":
             inner = p.get("properties", {})
             if any(isinstance(v, dict) and v.get("type") == "object" for v in inner.values()):
-                warnings.append(f"{tool}.{pname}: schema nested >1 level - flatten to top-level typed params")
+                warnings.append(
+                    f"{tool}.{pname}: schema nested >1 level - flatten to top-level typed params"
+                )
             elif not inner:
-                warnings.append(f"{tool}.{pname}: untyped object param - the model must guess its keys")
+                warnings.append(
+                    f"{tool}.{pname}: untyped object param - the model must guess its keys"
+                )
         if p.get("type") == "string" and "enum" not in p and pname in ENUMISH:
             warnings.append(f"{tool}.{pname}: looks constrained ('{pname}') but has no enum")
     if "additionalProperties" not in schema:
@@ -58,13 +62,14 @@ def main() -> int:
         print(__doc__.strip(), file=sys.stderr)
         return 2
     try:
-        data = json.load(open(sys.argv[1]))
+        with open(sys.argv[1], encoding="utf-8") as fh:
+            data = json.load(fh)
     except (OSError, json.JSONDecodeError) as e:
         print(f"ERROR: cannot read tools JSON: {e}", file=sys.stderr)
         return 2
     tools = data.get("tools", data) if isinstance(data, dict) else data
     if not isinstance(tools, list) or not tools:
-        print("ERROR: expected a non-empty array of tools (or {\"tools\": [...]})", file=sys.stderr)
+        print('ERROR: expected a non-empty array of tools (or {"tools": [...]})', file=sys.stderr)
         return 2
 
     names = []
@@ -72,12 +77,18 @@ def main() -> int:
         name = t.get("name", "")
         names.append(name)
         if not NAME_RE.match(name):
-            errors.append(f"{name or '<unnamed>'}: name must match [A-Za-z0-9_.-], 1-128 chars (SEP-986)")
+            errors.append(
+                f"{name or '<unnamed>'}: name must match [A-Za-z0-9_.-], 1-128 chars (SEP-986)"
+            )
         elif not SNAKE_RE.match(name):
-            warnings.append(f"{name}: not snake_case - tokenizers and clients handle snake_case best")
+            warnings.append(
+                f"{name}: not snake_case - tokenizers and clients handle snake_case best"
+            )
         desc = (t.get("description") or "").strip()
         if len(desc) < 40:
-            errors.append(f"{name}: description missing or <40 chars - descriptions are the model's routing prompt")
+            errors.append(
+                f"{name}: description missing or <40 chars - descriptions are the model's routing prompt"
+            )
         elif not re.search(r"\b(use (when|this|for)|not for|do not use)\b", desc, re.I):
             warnings.append(f"{name}: description has no when-to-use / not-for guidance")
         if isinstance(t.get("inputSchema"), dict):
@@ -87,16 +98,22 @@ def main() -> int:
     for d in sorted(dupes):
         errors.append(f"{d}: duplicate tool name")
     if len(tools) > 15:
-        warnings.append(f"{len(tools)} tools - above the ~5-15 heuristic; split by domain, permission, or performance profile")
+        warnings.append(
+            f"{len(tools)} tools - above the ~5-15 heuristic; split by domain, permission, or performance profile"
+        )
     prefixes = {n.split("_", 1)[0] for n in names if SNAKE_RE.match(n or "")}
     if len(tools) > 2 and len(prefixes) > 1:
-        warnings.append(f"multiple name prefixes {sorted(prefixes)} - one shared service prefix avoids cross-server collisions")
+        warnings.append(
+            f"multiple name prefixes {sorted(prefixes)} - one shared service prefix avoids cross-server collisions"
+        )
 
     for w in warnings:
         print(f"WARN  {w}")
     for e in errors:
         print(f"ERROR {e}")
-    print(f"{'FAIL' if errors else 'OK'}: {len(errors)} error(s), {len(warnings)} warning(s) across {len(tools)} tool(s)")
+    print(
+        f"{'FAIL' if errors else 'OK'}: {len(errors)} error(s), {len(warnings)} warning(s) across {len(tools)} tool(s)"
+    )
     return 1 if errors else 0
 
 

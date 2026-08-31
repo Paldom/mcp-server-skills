@@ -32,7 +32,8 @@ def main() -> int:
     pkg_path = None
     if "--package-json" in args:
         i = args.index("--package-json")
-        pkg_path = Path(args[i + 1]); del args[i:i + 2]
+        pkg_path = Path(args[i + 1])
+        del args[i : i + 2]
     if len(args) != 1:
         print(__doc__.strip(), file=sys.stderr)
         return 2
@@ -51,7 +52,9 @@ def main() -> int:
     if not desc:
         errors.append("missing description")
     elif not 20 <= len(desc) <= 100:
-        warnings.append(f"description length {len(desc)} - registry listings read best at 20-100 chars")
+        warnings.append(
+            f"description length {len(desc)} - registry listings read best at 20-100 chars"
+        )
     if not sj.get("version"):
         errors.append("missing version")
     elif not re.match(r"^\d+\.\d+\.\d+", str(sj["version"])):
@@ -86,7 +89,9 @@ def main() -> int:
         try:
             pkg = json.loads(pkg_path.read_text())
             if pkg.get("mcpName") != name:
-                errors.append(f"package.json mcpName {pkg.get('mcpName')!r} != server.json name {name!r} (registry verification fails)")
+                errors.append(
+                    f"package.json mcpName {pkg.get('mcpName')!r} != server.json name {name!r} (registry verification fails)"
+                )
         except (OSError, json.JSONDecodeError) as e:
             errors.append(f"cannot read --package-json: {e}")
 

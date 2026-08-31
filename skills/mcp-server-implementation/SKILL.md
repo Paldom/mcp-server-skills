@@ -1,6 +1,6 @@
 ---
 name: mcp-server-implementation
-description: Implements MCP servers with the official TypeScript or Python SDK - registering tools/resources/prompts, stdio and Streamable HTTP transports, lifecycle, isError vs protocol errors, structured output, progress and cancellation. Use when the user asks to build, create, code, scaffold, or debug an MCP server or its transport. Not for choosing the tool surface, OAuth, hardening, evals, or hosting.
+description: Implements MCP servers with the official TypeScript or Python SDK - tools/resources/prompts, stdio and Streamable HTTP transports, the initialize handshake, isError vs protocol errors, progress and cancellation. Use to build, code, scaffold or debug an MCP server, or when one crashes, disconnects after initialize, or breaks because something printed to stdout. Not for OAuth, evals, or hosting.
 ---
 
 # mcp-server-implementation
